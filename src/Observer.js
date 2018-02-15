@@ -1,7 +1,7 @@
 import Emitter from './Emitter'
 
 export default class {
-  constructor (connectionUrl, opts = {}) {
+  constructor (connectionUrl, Vue, opts = {}) {
     this.format = opts.format && opts.format.toLowerCase()
     this.connectionUrl = connectionUrl
     this.opts = opts
@@ -12,38 +12,61 @@ export default class {
     this.reconnectTimeoutId = 0
     this.reconnectionCount = 0
 
-    this.connect(connectionUrl, opts)
-
     if (opts.store) { this.store = opts.store }
-    this.onEvent()
-  }
 
-  connect (connectionUrl, opts = {}) {
-    let protocol = opts.protocol || ''
-    this.WebSocket = opts.WebSocket || (protocol === '' ? new WebSocket(connectionUrl) : new WebSocket(connectionUrl, protocol))
-    if (this.format === 'json') {
-      if (!('sendObj' in this.WebSocket)) {
-        this.WebSocket.sendObj = (obj) => this.WebSocket.send(JSON.stringify(obj))
-      }
+    this.autoConnect = this.opts.autoConnect === undefined ? true : opts.autoConnect
+    if (this.autoConnect) {
+      this.connect()
     }
 
+    Vue.prototype.$socket = this
+  }
+
+  connect () {
+    this.autoConnect = true
+    let opts = this.opts
+    let protocol = opts.protocol || ''
+    let connectionUrl = this.connectionUrl
+    this.WebSocket = opts.WebSocket || (protocol === '' ? new WebSocket(connectionUrl) : new WebSocket(connectionUrl, protocol))
+    this.onEvent()
     return this.WebSocket
   }
 
   reconnect () {
+    if (!this.autoConnect) {
+      return
+    }
+
     if (this.reconnectionCount <= this.reconnectionAttempts) {
       this.reconnectionCount++
       clearTimeout(this.reconnectTimeoutId)
 
       this.reconnectTimeoutId = setTimeout(() => {
         if (this.store) { this.passToStore('SOCKET_RECONNECT', this.reconnectionCount) }
-
-        this.connect(this.connectionUrl, this.opts)
-        this.onEvent()
+        this.connect()
       }, this.reconnectionDelay)
     } else {
       if (this.store) { this.passToStore('SOCKET_RECONNECT_ERROR', true) }
     }
+  }
+
+  send (msg) {
+    if (this.WebSocket) {
+      this.WebSocket.send(msg)
+    }
+  }
+
+  sendObj (obj) {
+    if (this.WebSocket) {
+      this.WebSocket.send(JSON.stringify(obj))
+    }
+  }
+
+  close () {
+    if (this.WebSocket) {
+      this.WebSocket.close()
+    }
+    this.autoConnect = false
   }
 
   onEvent () {
