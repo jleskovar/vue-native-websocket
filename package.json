@@ -1,5 +1,5 @@
 {
-  "name": "vue-native-websocket",
+  "name": "@jleskovar/vue-native-websocket",
   "version": "2.0.5",
   "description": "native websocket implemantation for vuejs and vuex",
   "main": "dist/build.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nathantsoi/vue-native-websocket.git"
+    "url": "git+https://github.com/jleskovar/vue-native-websocket.git"
   },
   "keywords": [
     "vuejs",
@@ -23,12 +23,12 @@
     "vuex",
     "redux"
   ],
-  "author": "Nathan Tsoi",
+  "author": "James Leskovar",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nathantsoi/vue-native-websocket/issues"
+    "url": "https://github.com/jleskovar/vue-native-websocket/issues"
   },
-  "homepage": "https://github.com/nathantsoi/vue-native-websocket#readme",
+  "homepage": "https://github.com/jleskovar/vue-native-websocket#readme",
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
